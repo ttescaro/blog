@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Optimize Disk Space Usage of Docker in WSL2 | TescaDev</title>
+    <meta name="description"
+        content="A comprehensive guide to cleaning up Docker resources and compacting the ext4.vhdx file in WSL2 to reclaim disk space.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <main class="article-container">
+        <a href="index.html" class="back-link">← Back to Articles</a>
+
+        <header class="article-header">
+            <span class="card-date">March 17, 2026</span>
+            <h1>How to Optimize Disk Space Usage of Docker in WSL2</h1>
+        </header>
+
+        <img src="assets/docker_wsl2_optimization_1773768040690.png" alt="Docker WSL2 Optimization"
+            style="width: 100%; border-radius: 12px; margin-bottom: 2rem;">
+
+        <section class="article-content">
+            <p>If you're running Docker inside WSL2 (Windows Subsystem for Linux) and noticing that your disk space is
+                quickly being consumed, this guide will walk you through the best ways to clean up space and reduce the
+                size of your <code>ext4.vhdx</code> virtual disk.</p>
+
+            <h2>✨ Step 1: Clean Docker Resources Inside WSL</h2>
+            <p>Open your WSL2 terminal (e.g., Ubuntu) and run the following commands to remove unused Docker resources:
+            </p>
+
+            <pre><code>docker system prune -a --volumes
+sudo apt-get autoremove -y
+sudo apt-get clean</code></pre>
+
+            <p>Then, zero out free space to help with disk compaction:</p>
+
+            <pre><code>dd if=/dev/zero of=wipefile bs=1M status=progress; sync; /bin/rm wipefile</code></pre>
+
+            <h2>🔌 Step 2: Shut Down WSL</h2>
+            <p>In PowerShell (as Administrator), shut down WSL completely:</p>
+
+            <pre><code>wsl --shutdown</code></pre>
+
+            <h2>⚙️ Step 3: Compact the ext4.vhdx File Using diskpart</h2>
+            <p>Open Command Prompt as Administrator. Type <code>diskpart</code> and press Enter. Run the following
+                commands (adjust the file path accordingly):</p>
+
+            <pre><code>select vdisk file="D:\Docker\wsl\UbuntuWSL\ext4.vhdx"
+attach vdisk readonly
+compact vdisk
+detach vdisk
+exit</code></pre>
+
+            <p>This will shrink the <code>.vhdx</code> file by removing unused zeroed space.</p>
+
+            <h2>🔧 Step 4: Toggle Sparse Mode (Optional for Windows 11+)</h2>
+            <pre><code>wsl.exe --manage Ubuntu --set-sparse false
+wsl.exe --manage Ubuntu --set-sparse true</code></pre>
+
+            <h2>🏁 Conclusion</h2>
+            <p>Managing disk usage effectively within WSL2 is crucial for performance and long-term
+                maintainability—especially when working with Docker. By following the cleaning and compaction steps,
+                along with considering alternative storage paths, you ensure your development environment remains fast,
+                clean, and efficient. Regular maintenance using these techniques will help you avoid bloated virtual
+                disks and unexpected storage issues.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TescaDev Blog. Built for developers by a developer.</p>
+        <p>Follow the journey on <a href="https://github.com/ttescaro">GitHub</a></p>
+    </footer>
+</body>
+
+</html>

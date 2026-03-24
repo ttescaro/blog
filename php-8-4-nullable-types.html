@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHP 8.4: Resolving Nullable Type Deprecations | TescaDev</title>
+    <meta name="description"
+        content="Learn how to handle the new nullable type deprecations in PHP 8.4 and prepare your codebase for future upgrades.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <main class="article-container">
+        <a href="index.html" class="back-link">← Back to Articles</a>
+
+        <header class="article-header">
+            <span class="card-date">March 17, 2026</span>
+            <h1>PHP 8.4: Resolving Nullable Type Deprecations</h1>
+        </header>
+
+        <img src="assets/php_8_4_nullable_types_1773767749218.png" alt="PHP 8.4 Nullable Types"
+            style="width: 100%; border-radius: 12px; margin-bottom: 2rem;">
+
+        <section class="article-content">
+            <p>If you're upgrading to PHP 8.4 for Magento or another framework, you might run into this error when you
+                compile your modules:</p>
+
+            <pre><code>Deprecated Functionality: MageWorx\ShippingRules\Model\ResourceModel\Carrier\Grid\Collection::__construct(): Implicitly marking parameter $connection as nullable is deprecated, the explicit nullable type must be used instead in /var/www/html/app/code/MageWorx/ShippingRules/Model/ResourceModel/Carrier/Grid/Collection.php on line 53</code></pre>
+
+            <p>This guide will help you resolve the current error and prepare you for a seamless PHP upgrade by
+                preventing common issues. Let's get started with what you need to know about PHP 8.4, Nullable Type.</p>
+
+            <h2>Nullable Type</h2>
+            <p>PHP 8.4 is set to introduce a change that will strengthen the language's type system by deprecating
+                implicitly nullable types. This move continues PHP's evolution towards stricter, more predictable code.
+                While this change is a positive step forward, it means a common coding pattern will now throw a
+                deprecation notice.</p>
+
+            <p>Let's dive into what's changing, why it's happening, and how you can prepare your code. 🧐</p>
+
+            <h2>The Deprecation: Implicit vs. Explicit Nullability</h2>
+            <p>In older versions of PHP, it was possible to declare a typed property or parameter and assign null as its
+                default value without explicitly marking the type as nullable. This made the type implicitly nullable.
+            </p>
+
+            <div class="highlight-box">
+                The Old Way (Now Deprecated): This code will trigger a deprecation notice in PHP 8.4 and will likely
+                become a fatal error in PHP 9.0.
+            </div>
+
+            <pre><code>class User {
+    <span class="code-annotation">// Deprecation: Type 'string' is not nullable, but default value is null</span>
+    public string $name = null;
+}</code></pre>
+
+            <p>The problem here is the type declaration <code>string</code> does not inherently allow null. However, by
+                setting the default value to null, PHP previously allowed it. This creates a contradiction in the code:
+                the type says one thing, but the default value says another.</p>
+
+            <div class="highlight-box">
+                The Correct Way (PHP 8.4+): To fix this, you must explicitly mark the type as nullable using the ?
+                notation.
+            </div>
+
+            <pre><code>class User {
+    <span class="code-annotation">// Correct: The '?' makes the type explicitly nullable</span>
+    public ?string $name = null;
+}</code></pre>
+
+            <p>By adding the question mark (<code>?string</code>), you are clearly stating that the <code>$name</code>
+                property can be either a string or null. This makes your code more readable and your intentions
+                unambiguous.</p>
+
+            <h2>How to Prepare Your Codebase</h2>
+            <p>Updating your code for this change is straightforward. You need to find all instances where a typed
+                property, parameter, or return type has a default value of null but isn't explicitly marked as nullable.
+            </p>
+
+            <h3>1. Find the Problematic Code</h3>
+            <p>You can search your project for patterns like:</p>
+            <ul>
+                <li><code>string $... = null</code></li>
+                <li><code>int $... = null</code></li>
+                <li><code>array $... = null</code></li>
+                <li><code>YourClass $... = null</code></li>
+            </ul>
+
+            <h3>2. Apply the Fix</h3>
+            <p>For each instance you find, simply add a question mark (?) before the type declaration.</p>
+
+            <p><strong>Before:</strong></p>
+            <pre><code>function createUser(string $username = null) {
+    // ...
+}</code></pre>
+
+            <p><strong>After:</strong></p>
+            <pre><code>function createUser(?string $username = null) {
+    // ...
+}</code></pre>
+
+            <h2>Conclusion</h2>
+            <p>Adhering to best practices like writing clean code, following PSRs, and continuously staying updated with
+                your language's features is crucial. This discipline minimizes rework and significantly simplifies
+                long-term maintenance. I hope you find this advice valuable in your professional and academic endeavors.
+                Best regards.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TescaDev Blog. Built for developers by a developer.</p>
+        <p>Follow the journey on <a href="https://github.com/ttescaro">GitHub</a></p>
+    </footer>
+</body>
+
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constructor Property Promotion and match in PHP 8 | TescaDev</title>
+    <meta name="description"
+        content="Explore two of the most powerful features introduced in PHP 8: Constructor Property Promotion and the match expression.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <main class="article-container">
+        <a href="index.html" class="back-link">← Back to Articles</a>
+
+        <header class="article-header">
+            <span class="card-date">March 17, 2026</span>
+            <h1>Constructor Property Promotion and match in PHP 8</h1>
+        </header>
+
+        <img src="assets/php8_features_promo_match_1773768285123.png" alt="PHP 8 Features"
+            style="width: 100%; border-radius: 12px; margin-bottom: 2rem;">
+
+        <section class="article-content">
+            <p>PHP 8 introduced several powerful features that improve code readability, maintainability, and
+                performance. Two of the most notable features are Constructor Property Promotion and the match
+                expression. These additions simplify common coding patterns and reduce boilerplate code. Let's explore
+                how they work and why they are beneficial.</p>
+
+            <h2>🔹 Constructor Property Promotion</h2>
+            <p>Before PHP 8, defining properties in a class required repetitive code. Developers had to manually declare
+                properties, assign them in the constructor, and often create getter/setter methods.</p>
+
+            <div class="highlight-box">
+                ✅ Traditional Constructor in PHP 7
+            </div>
+            <pre><code>class User {
+    private string $name;
+    private int $age;
+
+    public function __construct(string $name, int $age) {
+        $this->name = $name;
+        $this->age = $age;
+    }
+}</code></pre>
+
+            <div class="highlight-box">
+                ✅ Constructor Property Promotion in PHP 8
+            </div>
+            <p>With PHP 8, you can define and assign class properties directly in the constructor parameters using the
+                <code>public</code>, <code>protected</code>, or <code>private</code> keywords.</p>
+
+            <pre><code>class User {
+    public function __construct(
+        private string $name,
+        private int $age
+    ) {}
+}</code></pre>
+
+            <p><strong>Advantages:</strong></p>
+            <ul>
+                <li>Reduces boilerplate code</li>
+                <li>Improves readability</li>
+                <li>Makes class definitions more compact</li>
+            </ul>
+
+            <h2>🔹 The match Expression</h2>
+            <p>The <code>match</code> expression is an improved version of <code>switch</code>. It is more concise,
+                strict in comparison, and can return values directly.</p>
+
+            <div class="highlight-box">
+                ✅ Traditional switch in PHP 7
+            </div>
+            <pre><code>$status = 200;
+
+switch ($status) {
+    case 200:
+    case 201:
+        $message = "Success";
+        break;
+    case 404:
+        $message = "Not Found";
+        break;
+    default:
+        $message = "Error";
+}</code></pre>
+
+            <div class="highlight-box">
+                ✅ Using match in PHP 8
+            </div>
+            <pre><code>$status = 200;
+
+$message = match ($status) {
+    200, 201 => "Success",
+    404 => "Not Found",
+    default => "Error",
+};</code></pre>
+
+            <p><strong>Advantages of match:</strong></p>
+            <ul>
+                <li>Returns a value (no need for extra assignments)</li>
+                <li>Strict comparison (<code>===</code>) ensures better type safety</li>
+                <li>More concise and readable than switch</li>
+            </ul>
+
+            <h2>🎯 Conclusion</h2>
+            <p>Constructor Property Promotion and match are just two of the many enhancements in PHP 8 that make coding
+                more efficient and readable. If you're upgrading to PHP 8, incorporating these features into your
+                projects will help streamline development and improve code maintainability.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TescaDev Blog. Built for developers by a developer.</p>
+        <p>Follow the journey on <a href="https://github.com/ttescaro">GitHub</a></p>
+    </footer>
+</body>
+
+</html>
