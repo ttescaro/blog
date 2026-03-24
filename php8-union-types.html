@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Union Types in PHP 8 | TescaDev</title>
+    <meta name="description"
+        content="Learn how union types in PHP 8 allow you to declare multiple types for properties, function arguments, and return types.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>TescaDev</h1>
+        <p>Documenting my journey through code, architecture, and continuous learning.</p>
+    </header>
+
+    <main class="article-container">
+        <a href="index.html" class="back-link">← Back to Articles</a>
+
+        <header class="article-header">
+            <span class="card-date">March 23, 2026</span>
+            <h1>Union Types in PHP 8</h1>
+        </header>
+
+        <img src="assets/php8_union_types_hero.png" alt="Union Types in PHP 8"
+            style="width: 100%; border-radius: 12px; margin-bottom: 2rem;">
+
+        <section class="article-content">
+            <p>Union Types in PHP 8 allow you to declare multiple types for properties, function arguments, and return
+                types. Before PHP 8, you could only specify a single type for these elements. Let’s explore how union
+                types work:</p>
+
+            <p>To define a union type, separate the types using the vertical bar (|)</p>
+
+            <p>We have a method that accepts string and array as a parameter.</p>
+
+            <h2>Nullable Types and Union Types:</h2>
+            <p>PHP already supports nullable types using the ? prefix:</p>
+
+            <p>We have a method that returns a string or null.</p>
+            <p>We can use <code>string|null</code>:</p>
+
+            <p>When we have multiple return types (3 or more), we need to specify <code>|null</code> as in the example
+                above.</p>
+
+            <h2>Void Type and Union Types:</h2>
+            <p>The void type is allowed only as a single return type (since it indicates a function that doesn’t return
+                a value).</p>
+            <p>In PHP 8, the void type cannot be combined with any other type in a union (e.g., <code>string|void</code>
+                isn't allowed).</p>
+
+            <p>We have an example below with the error:</p>
+
+            <p>A method with a type combination of string and void will result in an error when you try to execute the
+                code.</p>
+
+            <h2>Complete Class Example</h2>
+            <p>Here is a complete class showing Union Types in action:</p>
+
+            <pre><code class="language-php">&lt;?php
+
+/**
+ * Address class
+ * @author Tiago Tescaro
+ */
+class Address
+{
+    /**
+     * @var string[]
+     */
+    protected $data;
+
+    /**
+     * @param string|array $street
+     * @return Address
+     */
+    public function setStreet(string|array $street): Address
+    {
+        if (is_string($street)) {
+            $street = [$street];
+        }
+        $this->data['street'] = $street;
+        return $this;
+    }
+
+    /**
+     * @param string|int $number
+     * @return $this
+     */
+    public function setHouseNumber(string|int $number): Address
+    {
+        $this->data['number'] = $number;
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getStreet(): ?string
+    {
+        if (!isset($this->data['street'])) {
+            return null;
+        }
+
+        if (is_array($this->data['street'])) {
+            return implode("\n", $this->data['street']);
+        }
+        return $this->data['street'];
+    }
+
+    /**
+     * @return string|int|null
+     */
+    public function getHouseNumber(): string|int|null
+    {
+        return $this->data['number'] ?? null;
+    }
+}</code></pre>
+
+            <p>Thanks, Guys, I hope that you learned a new thing. Have an excellent day.</p>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 TescaDev Blog. Built for developers by a developer.</p>
+        <p>About me, <a href="https://ttescaro.github.io/resume/">Click here</a></p>
+    </footer>
+</body>
+
+</html>
