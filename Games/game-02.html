@@ -52,9 +52,9 @@
     class="bg-slate-900 text-white font-sans h-screen w-screen overflow-hidden relative flex flex-col items-center justify-center py-2">
 
     <a href="index.html"
-        class="absolute top-6 left-4 sm:top-8 sm:left-8 z-40 inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white rounded-lg transition-colors font-medium border border-slate-700 hover:border-cyan-500 shadow-sm group">
-        <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none"
-            stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        class="absolute top-4 left-4 sm:top-8 sm:left-8 z-40 inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white rounded-lg transition-colors text-sm sm:text-base font-medium border border-slate-700 hover:border-cyan-500 shadow-sm group">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 transform group-hover:-translate-x-1 transition-transform"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
             </path>
         </svg>
@@ -65,36 +65,38 @@
     <div id="startMenu"
         class="absolute inset-0 z-50 bg-slate-900/95 flex flex-col items-center justify-center backdrop-blur-sm min-h-screen">
         <h2
-            class="text-5xl font-extrabold mb-12 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 drop-shadow-lg">
+            class="text-4xl sm:text-5xl text-center font-extrabold mb-8 sm:mb-12 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 drop-shadow-lg px-4">
             Select Game Mode</h2>
-        <div class="flex gap-8 flex-col md:flex-row">
+        <div class="flex gap-6 sm:gap-8 flex-col md:flex-row">
             <!-- PvP -->
             <div onclick="startGame(false)"
-                class="cursor-pointer group bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-700 hover:border-cyan-400 transition-all duration-300 hover:-translate-y-2 w-72">
-                <div class="h-64 bg-slate-900 relative">
+                class="cursor-pointer group bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-700 hover:border-cyan-400 transition-all duration-300 hover:-translate-y-2 w-64 sm:w-72">
+                <div class="h-48 sm:h-64 bg-slate-900 relative">
                     <img src="../assets/pvp_menu_image.png"
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent opacity-80"></div>
                 </div>
-                <div class="p-6 text-center relative">
-                    <h3 class="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors">Player vs
+                <div class="p-4 sm:p-6 text-center relative">
+                    <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors">
+                        Player vs
                         Player</h3>
-                    <p class="text-slate-400 mt-2">Play locally with a friend</p>
+                    <p class="text-sm sm:text-base text-slate-400 mt-2">Play locally with a friend</p>
                 </div>
             </div>
 
             <!-- PvB -->
             <div onclick="startGame(true)"
-                class="cursor-pointer group bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-700 hover:border-emerald-400 transition-all duration-300 hover:-translate-y-2 w-72">
-                <div class="h-64 bg-slate-900 relative">
+                class="cursor-pointer group bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-700 hover:border-emerald-400 transition-all duration-300 hover:-translate-y-2 w-64 sm:w-72">
+                <div class="h-48 sm:h-64 bg-slate-900 relative">
                     <img src="../assets/pvb_menu_image.png"
                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     <div class="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent opacity-80"></div>
                 </div>
-                <div class="p-6 text-center relative">
-                    <h3 class="text-2xl font-bold text-white group-hover:text-emerald-400 transition-colors">Player vs
+                <div class="p-4 sm:p-6 text-center relative">
+                    <h3 class="text-xl sm:text-2xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+                        Player vs
                         Bot</h3>
-                    <p class="text-slate-400 mt-2">Challenge the AI</p>
+                    <p class="text-sm sm:text-base text-slate-400 mt-2">Challenge the AI</p>
                 </div>
             </div>
         </div>
@@ -103,7 +105,7 @@
     <!-- Game Wrapper -->
     <div id="gameWrapper" class="hidden flex-col items-center w-full h-full justify-center pb-2">
         <h1
-            class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 mb-1 mt-12 sm:mt-0">
+            class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 mb-1 mt-14 sm:mt-0">
             Checkers
         </h1>
         <h3 class="text-sm sm:text-base text-slate-400 mb-4 font-medium text-center px-4">
@@ -112,41 +114,41 @@
 
         <!-- Customization & Scoreboard -->
         <div
-            class="flex flex-row gap-4 mb-4 bg-slate-800 px-6 py-3 rounded-2xl shadow-xl border border-slate-700 items-center justify-between w-[95vw] max-w-3xl">
+            class="flex flex-row gap-2 sm:gap-4 mb-4 bg-slate-800 px-3 sm:px-6 py-2 sm:py-3 rounded-2xl shadow-xl border border-slate-700 items-center justify-between w-[95vw] max-w-3xl">
             <!-- Player 1 -->
             <div class="flex flex-col items-center">
-                <span class="text-lg font-bold mb-2">Player 1</span>
+                <span class="text-sm sm:text-lg font-bold mb-1 sm:mb-2">Player 1</span>
                 <input type="color" id="p1ColorPicker" value="#ef4444"
-                    class="w-14 h-14 rounded-xl cursor-pointer border-2 border-slate-600 bg-transparent mb-2 shadow-inner">
-                <span class="text-sm text-slate-400">Pieces left</span>
-                <span id="score1" class="text-4xl font-bold text-rose-400">12</span>
+                    class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl cursor-pointer border-2 border-slate-600 bg-transparent mb-1 sm:mb-2 shadow-inner">
+                <span class="text-[10px] sm:text-sm text-slate-400">Pieces left</span>
+                <span id="score1" class="text-2xl sm:text-4xl font-bold text-rose-400">12</span>
             </div>
 
             <!-- Status -->
-            <div class="flex flex-col items-center text-center px-4">
+            <div class="flex flex-col items-center text-center px-1 sm:px-4">
                 <div id="status"
-                    class="text-xl sm:text-2xl font-bold text-cyan-400 mb-2 px-6 py-2 rounded-lg bg-slate-900 border border-slate-700 min-w-[200px] transition-all">
+                    class="text-base sm:text-2xl font-bold text-cyan-400 mb-2 sm:mb-4 px-3 sm:px-6 py-1.5 sm:py-2 rounded-lg bg-slate-900 border border-slate-700 min-w-[120px] sm:min-w-[200px] transition-all">
                     Player 1's Turn
                 </div>
                 <button id="resetBtn"
-                    class="px-6 py-2 bg-slate-700 hover:bg-cyan-600 rounded-full font-semibold transition-colors shadow-lg uppercase tracking-wider text-xs sm:text-sm">
+                    class="px-4 sm:px-6 py-1.5 sm:py-2 bg-slate-700 hover:bg-cyan-600 rounded-full font-semibold transition-colors shadow-lg uppercase tracking-wider text-[10px] sm:text-sm">
                     Restart
                 </button>
             </div>
 
             <!-- Player 2 -->
             <div class="flex flex-col items-center">
-                <span id="p2Label" class="text-lg font-bold mb-2">Player 2</span>
+                <span id="p2Label" class="text-sm sm:text-lg font-bold mb-1 sm:mb-2">Player 2</span>
                 <input type="color" id="p2ColorPicker" value="#cbd5e1"
-                    class="w-14 h-14 rounded-xl cursor-pointer border-2 border-slate-600 bg-transparent mb-2 shadow-inner">
-                <span class="text-sm text-slate-400">Pieces left</span>
-                <span id="score2" class="text-4xl font-bold text-slate-300">12</span>
+                    class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl cursor-pointer border-2 border-slate-600 bg-transparent mb-1 sm:mb-2 shadow-inner">
+                <span class="text-[10px] sm:text-sm text-slate-400">Pieces left</span>
+                <span id="score2" class="text-2xl sm:text-4xl font-bold text-slate-300">12</span>
             </div>
         </div>
 
         <!-- Game Board -->
         <div id="board"
-            class="grid grid-cols-8 bg-slate-700 p-2 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-800 w-full max-w-[min(90vw,55vh)] aspect-square">
+            class="grid grid-cols-8 bg-slate-700 p-1 sm:p-2 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-800 w-full max-w-[min(95vw,65vh)] aspect-square">
             <!-- Rendered by JS -->
         </div>
     </div>
@@ -183,8 +185,8 @@
 
         function showToast(message) {
             const toast = document.createElement('div');
-            toast.className = 'toast bg-rose-600 text-white px-6 py-3 rounded-lg shadow-2xl font-bold border-2 border-rose-400 flex items-center gap-2 text-lg';
-            toast.innerHTML = `<span class="text-2xl">💨</span> ${message}`;
+            toast.className = 'toast bg-rose-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-2xl font-bold border-2 border-rose-400 flex items-center gap-2 text-sm sm:text-lg';
+            toast.innerHTML = `<span class="text-xl sm:text-2xl">💨</span> ${message}`;
             toastContainer.appendChild(toast);
             setTimeout(() => {
                 if (toast.parentElement) toast.remove();
@@ -603,11 +605,11 @@
                 } else {
                     statusElement.innerHTML = `Player ${currentPlayer}'s Turn`;
                 }
-                statusElement.className = `text-2xl font-bold mb-4 px-6 py-3 rounded-lg min-w-[200px] shadow-lg transition-colors border ${currentPlayer === 1 ? 'text-white' : 'text-slate-900'}`;
+                statusElement.className = `text-base sm:text-2xl font-bold mb-2 sm:mb-4 px-3 sm:px-6 py-1.5 sm:py-2 rounded-lg min-w-[120px] sm:min-w-[200px] shadow-lg transition-colors border ${currentPlayer === 1 ? 'text-white' : 'text-slate-900'}`;
                 statusElement.style.backgroundColor = currentPlayer === 1 ? p1ColorPicker.value : p2ColorPicker.value;
                 statusElement.style.borderColor = currentPlayer === 1 ? p1ColorPicker.value : p2ColorPicker.value;
             } else {
-                statusElement.className = `text-2xl font-bold text-amber-400 mb-4 px-6 py-3 rounded-lg bg-amber-950/30 border border-amber-800 shadow-lg min-w-[200px]`;
+                statusElement.className = `text-base sm:text-2xl font-bold text-amber-400 mb-2 sm:mb-4 px-3 sm:px-6 py-1.5 sm:py-2 rounded-lg bg-amber-950/30 border border-amber-800 shadow-lg min-w-[120px] sm:min-w-[200px]`;
                 statusElement.style.backgroundColor = '';
                 statusElement.style.borderColor = '';
             }
