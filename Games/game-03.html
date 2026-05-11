@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku | My Games Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .cell {
+            transition: background-color 0.15s ease-in-out, color 0.15s ease-in-out;
+        }
+
+        .cell.selected {
+            background-color: #38bdf8 !important;
+            /* cyan-400 */
+            color: #0f172a !important;
+            /* slate-900 */
+        }
+
+        .cell.related {
+            background-color: #334155;
+            /* slate-700 */
+        }
+
+        .cell.same-number {
+            background-color: #0f766e;
+            /* teal-700 */
+            color: #ccfbf1;
+        }
+
+        .cell.error {
+            background-color: #fca5a5 !important;
+            /* red-300 */
+            color: #7f1d1d !important;
+            /* red-900 */
+        }
+
+        .cell.initial {
+            font-weight: 700;
+            color: #e2e8f0;
+            /* slate-200 */
+        }
+
+        .cell.user-input {
+            color: #38bdf8;
+            /* cyan-400 */
+            font-weight: 500;
+        }
+
+        /* Toast animation */
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+        }
+
+        .toast {
+            animation: fadeOut 4s forwards;
+        }
+
+        /* Numpad active effect */
+        .numpad-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-900 text-white font-sans h-screen w-screen overflow-hidden relative flex flex-col items-center justify-center">
+
+    <a href="index.html"
+        class="absolute top-4 left-4 sm:top-8 sm:left-8 z-40 inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white rounded-lg transition-colors text-sm sm:text-base font-medium border border-slate-700 hover:border-cyan-500 shadow-sm group">
+        <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2 transform group-hover:-translate-x-1 transition-transform"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+            </path>
+        </svg>
+        Back to Library
+    </a>
+
+    <!-- Start Menu -->
+    <div id="startMenu"
+        class="absolute inset-0 z-50 bg-slate-900/95 flex flex-col items-center justify-center backdrop-blur-sm min-h-screen">
+        <h2
+            class="text-4xl sm:text-6xl text-center font-extrabold mb-8 sm:mb-12 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400 drop-shadow-lg px-4">
+            Sudoku
+        </h2>
+        <p class="text-slate-400 mb-8 text-center px-4 max-w-md">
+            Fill the 9x9 grid so that each column, each row, and each of the nine 3x3 grids contain all of the digits
+            from 1 to 9.
+        </p>
+
+        <h3 class="text-2xl font-bold mb-6 text-white">Select Difficulty</h3>
+        <div class="flex gap-4 sm:gap-6 flex-col sm:flex-row w-[80vw] max-w-md sm:max-w-3xl">
+            <!-- Easy -->
+            <button onclick="startGame('easy')"
+                class="flex-1 py-4 sm:py-6 bg-slate-800 rounded-2xl shadow-xl border-2 border-slate-700 hover:border-emerald-400 hover:-translate-y-1 transition-all duration-300 group">
+                <div class="text-xl sm:text-2xl font-bold text-white group-hover:text-emerald-400 transition-colors">
+                    Easy</div>
+                <div class="text-sm text-slate-400 mt-1">A gentle start</div>
+            </button>
+
+            <!-- Medium -->
+            <button onclick="startGame('medium')"
+                class="flex-1 py-4 sm:py-6 bg-slate-800 rounded-2xl shadow-xl border-2 border-slate-700 hover:border-amber-400 hover:-translate-y-1 transition-all duration-300 group">
+                <div class="text-xl sm:text-2xl font-bold text-white group-hover:text-amber-400 transition-colors">
+                    Medium</div>
+                <div class="text-sm text-slate-400 mt-1">A balanced challenge</div>
+            </button>
+
+            <!-- Hard -->
+            <button onclick="startGame('hard')"
+                class="flex-1 py-4 sm:py-6 bg-slate-800 rounded-2xl shadow-xl border-2 border-slate-700 hover:border-rose-400 hover:-translate-y-1 transition-all duration-300 group">
+                <div class="text-xl sm:text-2xl font-bold text-white group-hover:text-rose-400 transition-colors">Hard
+                </div>
+                <div class="text-sm text-slate-400 mt-1">For the experts</div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Game Wrapper -->
+    <div id="gameWrapper"
+        class="hidden flex-col items-center w-full h-full justify-start pt-16 sm:pt-6 pb-2 overflow-y-auto">
+        <!-- Header -->
+        <div class="flex flex-row items-end justify-between w-[95vw] max-w-[450px] mb-3 px-2 mt-4 sm:mt-0">
+            <div class="flex flex-col">
+                <h1
+                    class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400 leading-tight">
+                    Sudoku
+                </h1>
+                <span id="difficultyBadge"
+                    class="text-xs font-bold uppercase tracking-wider text-emerald-400 mt-1">EASY</span>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col items-end">
+                    <span class="text-xs text-slate-400 uppercase tracking-widest font-bold">Time</span>
+                    <span id="timerDisplay" class="text-xl sm:text-2xl font-mono font-bold text-slate-200">00:00</span>
+                </div>
+                <button onclick="resetToMenu()"
+                    class="p-2 bg-slate-800 border border-slate-600 rounded-lg text-slate-300 hover:bg-slate-700 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                        </path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Board Container -->
+        <div class="relative group mt-2">
+            <div id="board"
+                class="grid grid-cols-9 bg-slate-800 border-4 border-slate-900 rounded-xl w-[95vw] max-w-[450px] aspect-square overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                <!-- Rendered by JS -->
+            </div>
+            <!-- Overlay for game over -->
+            <div id="gameOverOverlay"
+                class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl opacity-0 pointer-events-none transition-opacity duration-500 z-10">
+                <h2
+                    class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500 drop-shadow-lg mb-2">
+                    Solved!</h2>
+                <p id="finalTime" class="text-xl text-white font-mono mb-6">Time: 00:00</p>
+                <button onclick="resetToMenu()"
+                    class="px-6 py-2 bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold rounded-full shadow-lg transition-transform hover:scale-105">Play
+                    Again</button>
+            </div>
+        </div>
+
+        <!-- Numpad -->
+        <div class="mt-4 sm:mt-6 grid grid-cols-5 gap-2 sm:gap-3 w-[95vw] max-w-[450px] mb-4">
+            <!-- 1 to 5 -->
+            <button
+                class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold text-2xl py-3 rounded-lg border border-slate-600 shadow-md transition-colors"
+                onclick="handleInput(1)">1</button>
+            <button
+                class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold text-2xl py-3 rounded-lg border border-slate-600 shadow-md transition-colors"
+                onclick="handleInput(2)">2</button>
+            <button
+                class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold text-2xl py-3 rounded-lg border border-slate-600 shadow-md transition-colors"
+                onclick="handleInput(3)">3</button>
+            <button
+                class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold text-2xl py-3 rounded-lg border border-slate-600 shadow-md transition-colors"
+                onclick="handleInput(4)">4</button>
+            <button
+                class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold text-2xl py-3 rounded-lg border border-slate-600 shadow-md transition-colors"
+                onclick="handleInput(5)">5</button>
+
+            <!-- 6 to 9 and Erase -->
+            <button
+                class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold text-2xl py-3 rounded-lg border border-slate-600 shadow-md transition-colors"
+                onclick="handleInput(6)">6</button>
+            <button
+                class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold text-2xl py-3 rounded-lg border border-slate-600 shadow-md transition-colors"
+                onclick="handleInput(7)">7</button>
+            <button
+                class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold text-2xl py-3 rounded-lg border border-slate-600 shadow-md transition-colors"
+                onclick="handleInput(8)">8</button>
+            <button
+                class="numpad-btn bg-slate-800 hover:bg-slate-700 text-white font-bold text-2xl py-3 rounded-lg border border-slate-600 shadow-md transition-colors"
+                onclick="handleInput(9)">9</button>
+            <button
+                class="numpad-btn bg-rose-900/60 hover:bg-rose-800/80 text-rose-300 flex items-center justify-center rounded-lg border border-rose-800 shadow-md transition-colors"
+                onclick="handleInput(0)">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M3 12l6.414 6.414a2 2 0 001.414.586H19a2 2 0 002-2V7a2 2 0 00-2-2h-8.172a2 2 0 00-1.414.586L3 12z">
+                    </path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"
+        class="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        // DOM Elements
+        const boardElement = document.getElementById('board');
+        const startMenu = document.getElementById('startMenu');
+        const gameWrapper = document.getElementById('gameWrapper');
+        const toastContainer = document.getElementById('toastContainer');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const difficultyBadge = document.getElementById('difficultyBadge');
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const finalTime = document.getElementById('finalTime');
+
+        // State
+        let solution = [];
+        let initialBoard = [];
+        let userBoard = [];
+        let selectedCell = null;
+        let gameEnded = false;
+
+        let timerInterval = null;
+        let elapsedSeconds = 0;
+
+        // Base valid Sudoku
+        const baseBoard = [
+            [1, 2, 3, 4, 5, 6, 7, 8, 9],
+            [4, 5, 6, 7, 8, 9, 1, 2, 3],
+            [7, 8, 9, 1, 2, 3, 4, 5, 6],
+            [2, 3, 1, 5, 6, 4, 8, 9, 7],
+            [5, 6, 4, 8, 9, 7, 2, 3, 1],
+            [8, 9, 7, 2, 3, 1, 5, 6, 4],
+            [3, 1, 2, 6, 4, 5, 9, 7, 8],
+            [6, 4, 5, 9, 7, 8, 3, 1, 2],
+            [9, 7, 8, 3, 1, 2, 6, 4, 5]
+        ];
+
+        // --- Logic: Board Generation ---
+
+        function cloneGrid(grid) {
+            return grid.map(row => [...row]);
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function generateSudoku() {
+            let grid = cloneGrid(baseBoard);
+
+            // 1. Shuffle numbers
+            let nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+            shuffle(nums);
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    grid[r][c] = nums[grid[r][c] - 1];
+                }
+            }
+
+            // 2. Shuffle rows within bands
+            for (let band = 0; band < 3; band++) {
+                let rows = [0, 1, 2];
+                shuffle(rows);
+                let newBand = rows.map(r => [...grid[band * 3 + r]]);
+                for (let r = 0; r < 3; r++) grid[band * 3 + r] = newBand[r];
+            }
+
+            // 3. Shuffle cols within stacks
+            for (let stack = 0; stack < 3; stack++) {
+                let cols = [0, 1, 2];
+                shuffle(cols);
+                let newGrid = cloneGrid(grid);
+                for (let r = 0; r < 9; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        grid[r][stack * 3 + c] = newGrid[r][stack * 3 + cols[c]];
+                    }
+                }
+            }
+
+            // 4. Shuffle bands
+            let bands = [0, 1, 2];
+            shuffle(bands);
+            let newGridBands = cloneGrid(grid);
+            for (let b = 0; b < 3; b++) {
+                for (let r = 0; r < 3; r++) {
+                    grid[b * 3 + r] = [...newGridBands[bands[b] * 3 + r]];
+                }
+            }
+
+            // 5. Shuffle stacks
+            let stacks = [0, 1, 2];
+            shuffle(stacks);
+            let newGridStacks = cloneGrid(grid);
+            for (let s = 0; s < 3; s++) {
+                for (let c = 0; c < 3; c++) {
+                    for (let r = 0; r < 9; r++) {
+                        grid[r][s * 3 + c] = newGridStacks[r][stacks[s] * 3 + c];
+                    }
+                }
+            }
+
+            return grid;
+        }
+
+        function createPuzzle(fullGrid, difficulty) {
+            let puzzle = cloneGrid(fullGrid);
+            let cellsToRemove = 40; // easy
+            if (difficulty === 'medium') cellsToRemove = 50;
+            if (difficulty === 'hard') cellsToRemove = 60;
+
+            let positions = [];
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    positions.push({ r, c });
+                }
+            }
+            shuffle(positions);
+
+            for (let i = 0; i < cellsToRemove; i++) {
+                let pos = positions[i];
+                puzzle[pos.r][pos.c] = 0;
+            }
+
+            return puzzle;
+        }
+
+        // --- Logic: Game State ---
+
+        function startGame(difficulty) {
+            startMenu.style.display = 'none';
+            gameWrapper.classList.remove('hidden');
+            gameWrapper.classList.add('flex');
+            gameOverOverlay.classList.add('pointer-events-none', 'opacity-0');
+            gameOverOverlay.classList.remove('pointer-events-auto', 'opacity-100');
+
+            difficultyBadge.innerText = difficulty;
+            if (difficulty === 'easy') difficultyBadge.className = 'text-xs font-bold uppercase tracking-wider text-emerald-400 mt-1';
+            if (difficulty === 'medium') difficultyBadge.className = 'text-xs font-bold uppercase tracking-wider text-amber-400 mt-1';
+            if (difficulty === 'hard') difficultyBadge.className = 'text-xs font-bold uppercase tracking-wider text-rose-400 mt-1';
+
+            solution = generateSudoku();
+            initialBoard = createPuzzle(solution, difficulty);
+            userBoard = cloneGrid(initialBoard);
+
+            selectedCell = null;
+            gameEnded = false;
+
+            startTimer();
+            renderBoard();
+        }
+
+        function resetToMenu() {
+            stopTimer();
+            gameWrapper.classList.add('hidden');
+            gameWrapper.classList.remove('flex');
+            startMenu.style.display = 'flex';
+        }
+
+        // --- UI: Timer ---
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function startTimer() {
+            stopTimer();
+            elapsedSeconds = 0;
+            timerDisplay.innerText = "00:00";
+            timerInterval = setInterval(() => {
+                elapsedSeconds++;
+                timerDisplay.innerText = formatTime(elapsedSeconds);
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.createElement('div');
+            toast.className = `toast px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-2xl font-bold border-2 flex items-center gap-2 text-sm sm:text-lg text-white ${isError ? 'bg-rose-600 border-rose-400' : 'bg-emerald-600 border-emerald-400'}`;
+            toast.innerHTML = `<span class="text-xl sm:text-2xl">${isError ? '❌' : '🎉'}</span> ${message}`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 4000);
+        }
+
+        // --- UI: Board Rendering ---
+
+        function hasError(r, c, val) {
+            if (val === 0) return false;
+
+            for (let i = 0; i < 9; i++) {
+                if (i !== c && userBoard[r][i] === val) return true;
+            }
+            for (let i = 0; i < 9; i++) {
+                if (i !== r && userBoard[i][c] === val) return true;
+            }
+            const br = Math.floor(r / 3) * 3;
+            const bc = Math.floor(c / 3) * 3;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    const row = br + i;
+                    const col = bc + j;
+                    if ((row !== r || col !== c) && userBoard[row][col] === val) return true;
+                }
+            }
+            return false;
+        }
+
+        function renderBoard() {
+            boardElement.innerHTML = '';
+
+            let selectedVal = selectedCell ? userBoard[selectedCell.r][selectedCell.c] : 0;
+
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    const cell = document.createElement('div');
+
+                    let classes = ['cell', 'flex', 'items-center', 'justify-center', 'text-xl', 'sm:text-3xl', 'select-none'];
+
+                    if (c % 3 === 2 && c !== 8) classes.push('border-r-2', 'border-r-slate-900');
+                    else if (c !== 8) classes.push('border-r', 'border-r-slate-700');
+
+                    if (r % 3 === 2 && r !== 8) classes.push('border-b-2', 'border-b-slate-900');
+                    else if (r !== 8) classes.push('border-b', 'border-b-slate-700');
+
+                    const val = userBoard[r][c];
+                    const isInitial = initialBoard[r][c] !== 0;
+
+                    if (isInitial) {
+                        classes.push('initial');
+                    } else {
+                        classes.push('user-input');
+                    }
+
+                    let isSelected = selectedCell && selectedCell.r === r && selectedCell.c === c;
+                    let isRelated = selectedCell && (selectedCell.r === r || selectedCell.c === c || (Math.floor(selectedCell.r / 3) === Math.floor(r / 3) && Math.floor(selectedCell.c / 3) === Math.floor(c / 3)));
+                    let isSameNum = val !== 0 && val === selectedVal && !isSelected;
+                    let cellHasError = hasError(r, c, val);
+
+                    if (isSelected) classes.push('selected');
+                    else if (cellHasError) classes.push('error');
+                    else if (isSameNum) classes.push('same-number');
+                    else if (isRelated) classes.push('related');
+
+                    if (!isInitial && !gameEnded) {
+                        classes.push('cursor-pointer');
+                    } else if (isInitial && !gameEnded) {
+                        classes.push('cursor-pointer');
+                    }
+
+                    cell.className = classes.join(' ');
+                    cell.innerText = val === 0 ? '' : val;
+
+                    cell.onclick = () => {
+                        if (gameEnded) return;
+                        if (selectedCell && selectedCell.r === r && selectedCell.c === c) {
+                            selectedCell = null;
+                        } else {
+                            selectedCell = { r, c };
+                        }
+                        renderBoard();
+                    };
+
+                    boardElement.appendChild(cell);
+                }
+            }
+        }
+
+        // --- Input Handling ---
+
+        function handleInput(num) {
+            if (gameEnded || !selectedCell) return;
+            const r = selectedCell.r;
+            const c = selectedCell.c;
+
+            if (initialBoard[r][c] !== 0) return;
+
+            userBoard[r][c] = num;
+            renderBoard();
+            checkWin();
+        }
+
+        function checkWin() {
+            for (let r = 0; r < 9; r++) {
+                for (let c = 0; c < 9; c++) {
+                    if (userBoard[r][c] === 0 || hasError(r, c, userBoard[r][c])) {
+                        return;
+                    }
+                }
+            }
+
+            gameEnded = true;
+            stopTimer();
+            selectedCell = null;
+            renderBoard();
+
+            finalTime.innerText = `Time: ${formatTime(elapsedSeconds)}`;
+            gameOverOverlay.classList.remove('pointer-events-none', 'opacity-0');
+            gameOverOverlay.classList.add('pointer-events-auto', 'opacity-100');
+
+            showToast("Puzzle solved successfully!");
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (gameEnded || !selectedCell) return;
+
+            if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                let { r, c } = selectedCell;
+                if (e.key === 'ArrowUp') r = Math.max(0, r - 1);
+                if (e.key === 'ArrowDown') r = Math.min(8, r + 1);
+                if (e.key === 'ArrowLeft') c = Math.max(0, c - 1);
+                if (e.key === 'ArrowRight') c = Math.min(8, c + 1);
+                selectedCell = { r, c };
+                renderBoard();
+                return;
+            }
+
+            const key = parseInt(e.key);
+            if (key >= 1 && key <= 9) {
+                handleInput(key);
+            } else if (e.key === 'Backspace' || e.key === 'Delete' || e.key === '0') {
+                handleInput(0);
+            }
+        });
+
+    </script>
+</body>
+
+</html>
