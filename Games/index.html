@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Games Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-900 text-white font-sans min-h-screen">
+
+    <div class="container mx-auto px-4 py-16 max-w-6xl">
+        <div class="mb-8">
+            <a href="../index.html"
+                class="inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white rounded-lg transition-colors font-medium border border-slate-700 hover:border-cyan-500 shadow-sm group">
+                <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Blog
+            </a>
+        </div>
+        <header class="text-center mb-12">
+            <h1
+                class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 mb-4">
+                My Games Library</h1>
+            <p class="text-xl text-slate-400">Choose a game to start the fun.</p>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Tic-Tac-Toe Card -->
+            <a href="game-01.html"
+                class="group bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border border-slate-700 hover:border-cyan-400/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-cyan-500/20 block">
+                <div class="aspect-square w-full overflow-hidden relative bg-slate-900">
+                    <img src="../assets/tic_tac_toe_thumb.png" alt="Tic-Tac-Toe Thumbnail"
+                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent opacity-80"></div>
+                </div>
+                <div class="p-8 relative">
+                    <span
+                        class="absolute -top-6 right-6 bg-cyan-600 text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider shadow-lg">Logic
+                        / Puzzle</span>
+                    <h3 class="text-3xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">
+                        Tic-Tac-Toe</h3>
+                    <p class="text-slate-400 text-base leading-relaxed">
+                        The classic tic-tac-toe game, built in Vanilla JS. Challenge our unbeatable bot powered by the
+                        Minimax algorithm and try to win the game!
+                    </p>
+                </div>
+            </a>
+
+            <!-- Checkers Card -->
+            <a href="game-02.html"
+                class="group bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border border-slate-700 hover:border-emerald-400/50 transition-all duration-300 hover:-translate-y-2 hover:shadow-emerald-500/20 block">
+                <div class="aspect-square w-full overflow-hidden relative bg-slate-900">
+                    <img src="../assets/checkers_thumb.png" alt="Checkers Thumbnail"
+                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent opacity-80"></div>
+                </div>
+                <div class="p-8 relative">
+                    <span
+                        class="absolute -top-6 right-6 bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-full uppercase tracking-wider shadow-lg">Strategy
+                        / Board</span>
+                    <h3 class="text-3xl font-bold text-white mb-3 group-hover:text-emerald-400 transition-colors">
+                        Checkers</h3>
+                    <p class="text-slate-400 text-base leading-relaxed">
+                        A fully customizable Checkers game! Pick your piece colors, battle a friend locally, and experience smooth jumps and king promotions.
+                    </p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+</body>
+
+</html>

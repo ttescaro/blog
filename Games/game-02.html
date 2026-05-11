@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkers | My Games Library</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .piece {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.4), inset 0 4px 8px rgba(255, 255, 255, 0.2), 0 4px 6px rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+        }
+
+        .king::after {
+            content: '♔';
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 2rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Toast animation */
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        .toast {
+            animation: fadeOut 4s forwards;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-900 text-white font-sans h-screen w-screen overflow-hidden relative flex flex-col items-center justify-center py-2">
+
+    <a href="index.html"
+        class="absolute top-6 left-4 sm:top-8 sm:left-8 z-40 inline-flex items-center px-4 py-2 bg-slate-800 hover:bg-cyan-600 text-slate-300 hover:text-white rounded-lg transition-colors font-medium border border-slate-700 hover:border-cyan-500 shadow-sm group">
+        <svg class="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none"
+            stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18">
+            </path>
+        </svg>
+        Back to Library
+    </a>
+
+    <!-- Start Menu -->
+    <div id="startMenu"
+        class="absolute inset-0 z-50 bg-slate-900/95 flex flex-col items-center justify-center backdrop-blur-sm min-h-screen">
+        <h2
+            class="text-5xl font-extrabold mb-12 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 drop-shadow-lg">
+            Select Game Mode</h2>
+        <div class="flex gap-8 flex-col md:flex-row">
+            <!-- PvP -->
+            <div onclick="startGame(false)"
+                class="cursor-pointer group bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-700 hover:border-cyan-400 transition-all duration-300 hover:-translate-y-2 w-72">
+                <div class="h-64 bg-slate-900 relative">
+                    <img src="../assets/pvp_menu_image.png"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent opacity-80"></div>
+                </div>
+                <div class="p-6 text-center relative">
+                    <h3 class="text-2xl font-bold text-white group-hover:text-cyan-400 transition-colors">Player vs
+                        Player</h3>
+                    <p class="text-slate-400 mt-2">Play locally with a friend</p>
+                </div>
+            </div>
+
+            <!-- PvB -->
+            <div onclick="startGame(true)"
+                class="cursor-pointer group bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border-2 border-slate-700 hover:border-emerald-400 transition-all duration-300 hover:-translate-y-2 w-72">
+                <div class="h-64 bg-slate-900 relative">
+                    <img src="../assets/pvb_menu_image.png"
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-800 to-transparent opacity-80"></div>
+                </div>
+                <div class="p-6 text-center relative">
+                    <h3 class="text-2xl font-bold text-white group-hover:text-emerald-400 transition-colors">Player vs
+                        Bot</h3>
+                    <p class="text-slate-400 mt-2">Challenge the AI</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Wrapper -->
+    <div id="gameWrapper" class="hidden flex-col items-center w-full h-full justify-center pb-2">
+        <h1
+            class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 mb-1 mt-12 sm:mt-0">
+            Checkers
+        </h1>
+        <h3 class="text-sm sm:text-base text-slate-400 mb-4 font-medium text-center px-4">
+            Capture all opponent pieces to win! Failure to capture will result in losing your piece.
+        </h3>
+
+        <!-- Customization & Scoreboard -->
+        <div
+            class="flex flex-row gap-4 mb-4 bg-slate-800 px-6 py-3 rounded-2xl shadow-xl border border-slate-700 items-center justify-between w-[95vw] max-w-3xl">
+            <!-- Player 1 -->
+            <div class="flex flex-col items-center">
+                <span class="text-lg font-bold mb-2">Player 1</span>
+                <input type="color" id="p1ColorPicker" value="#ef4444"
+                    class="w-14 h-14 rounded-xl cursor-pointer border-2 border-slate-600 bg-transparent mb-2 shadow-inner">
+                <span class="text-sm text-slate-400">Pieces left</span>
+                <span id="score1" class="text-4xl font-bold text-rose-400">12</span>
+            </div>
+
+            <!-- Status -->
+            <div class="flex flex-col items-center text-center px-4">
+                <div id="status"
+                    class="text-xl sm:text-2xl font-bold text-cyan-400 mb-2 px-6 py-2 rounded-lg bg-slate-900 border border-slate-700 min-w-[200px] transition-all">
+                    Player 1's Turn
+                </div>
+                <button id="resetBtn"
+                    class="px-6 py-2 bg-slate-700 hover:bg-cyan-600 rounded-full font-semibold transition-colors shadow-lg uppercase tracking-wider text-xs sm:text-sm">
+                    Restart
+                </button>
+            </div>
+
+            <!-- Player 2 -->
+            <div class="flex flex-col items-center">
+                <span id="p2Label" class="text-lg font-bold mb-2">Player 2</span>
+                <input type="color" id="p2ColorPicker" value="#cbd5e1"
+                    class="w-14 h-14 rounded-xl cursor-pointer border-2 border-slate-600 bg-transparent mb-2 shadow-inner">
+                <span class="text-sm text-slate-400">Pieces left</span>
+                <span id="score2" class="text-4xl font-bold text-slate-300">12</span>
+            </div>
+        </div>
+
+        <!-- Game Board -->
+        <div id="board"
+            class="grid grid-cols-8 bg-slate-700 p-2 rounded-xl shadow-[0_0_40px_rgba(0,0,0,0.5)] border-4 border-slate-800 w-full max-w-[min(90vw,55vh)] aspect-square">
+            <!-- Rendered by JS -->
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"
+        class="fixed bottom-10 left-1/2 transform -translate-x-1/2 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const statusElement = document.getElementById('status');
+        const resetBtn = document.getElementById('resetBtn');
+        const score1El = document.getElementById('score1');
+        const score2El = document.getElementById('score2');
+        const p1ColorPicker = document.getElementById('p1ColorPicker');
+        const p2ColorPicker = document.getElementById('p2ColorPicker');
+        const p2Label = document.getElementById('p2Label');
+        const gameWrapper = document.getElementById('gameWrapper');
+        const startMenu = document.getElementById('startMenu');
+        const toastContainer = document.getElementById('toastContainer');
+
+        let board = [];
+        let currentPlayer = 1;
+        let selectedPiece = null;
+        let possibleMoves = [];
+        let consecutiveJumpPiece = null;
+        let score1 = 12;
+        let score2 = 12;
+        let gameEnded = false;
+
+        let playAgainstBot = false;
+        let botThinking = false;
+        const SEARCH_DEPTH = 6;
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast bg-rose-600 text-white px-6 py-3 rounded-lg shadow-2xl font-bold border-2 border-rose-400 flex items-center gap-2 text-lg';
+            toast.innerHTML = `<span class="text-2xl">💨</span> ${message}`;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                if (toast.parentElement) toast.remove();
+            }, 4000);
+        }
+
+        function startGame(vsBot) {
+            playAgainstBot = vsBot;
+            p2Label.innerText = vsBot ? "Bot" : "Player 2";
+            startMenu.style.display = 'none';
+            gameWrapper.classList.remove('hidden');
+            gameWrapper.classList.add('flex');
+            initBoard();
+        }
+
+        function initBoard() {
+            board = [];
+            for (let r = 0; r < 8; r++) {
+                board[r] = [];
+                for (let c = 0; c < 8; c++) {
+                    if ((r + c) % 2 === 1) {
+                        if (r < 3) board[r][c] = 2;
+                        else if (r > 4) board[r][c] = 1;
+                        else board[r][c] = 0;
+                    } else {
+                        board[r][c] = 0;
+                    }
+                }
+            }
+            currentPlayer = 1;
+            selectedPiece = null;
+            possibleMoves = [];
+            consecutiveJumpPiece = null;
+            score1 = 12;
+            score2 = 12;
+            gameEnded = false;
+            botThinking = false;
+            updateStatus();
+            renderBoard();
+
+            if (playAgainstBot && currentPlayer === 2) {
+                setTimeout(makeBotMove, 100);
+            }
+        }
+
+        function getValidMovesForBoard(b, r, c, isConsecutiveJump = false) {
+            const piece = b[r][c];
+            if (piece === 0) return [];
+            const player = (piece === 1 || piece === 3) ? 1 : 2;
+            const isKing = piece === 3 || piece === 4;
+
+            let directions = [];
+            if (player === 1 || isKing) directions.push({ dr: -1, dc: -1 }, { dr: -1, dc: 1 });
+            if (player === 2 || isKing) directions.push({ dr: 1, dc: -1 }, { dr: 1, dc: 1 });
+
+            let moves = [];
+            let jumps = [];
+
+            for (let dir of directions) {
+                if (!isConsecutiveJump) {
+                    let nr = r + dir.dr;
+                    let nc = c + dir.dc;
+                    if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && b[nr][nc] === 0) {
+                        moves.push({ toRow: nr, toCol: nc, captured: null });
+                    }
+                }
+
+                let jr = r + dir.dr * 2;
+                let jc = c + dir.dc * 2;
+                let mr = r + dir.dr;
+                let mc = c + dir.dc;
+
+                if (jr >= 0 && jr < 8 && jc >= 0 && jc < 8) {
+                    if (b[jr][jc] === 0 && b[mr][mc] !== 0) {
+                        const midPiece = b[mr][mc];
+                        const midPlayer = (midPiece === 1 || midPiece === 3) ? 1 : 2;
+                        if (midPlayer !== player) {
+                            jumps.push({ toRow: jr, toCol: jc, captured: { r: mr, c: mc } });
+                        }
+                    }
+                }
+            }
+            // Return both normal moves and jumps. The player decides!
+            return [...jumps, ...moves];
+        }
+
+        function getAllPossibleMovesForBoard(b, player, enforceMandatory = false) {
+            let allMoves = [];
+            let hasJumps = false;
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = b[r][c];
+                    if (piece !== 0 && ((piece === 1 || piece === 3) ? 1 : 2) === player) {
+                        let moves = getValidMovesForBoard(b, r, c);
+                        for (let move of moves) {
+                            if (move.captured) hasJumps = true;
+                            allMoves.push({ fromRow: r, fromCol: c, ...move });
+                        }
+                    }
+                }
+            }
+
+            if (enforceMandatory && hasJumps) {
+                return allMoves.filter(m => m.captured !== null);
+            }
+            return allMoves;
+        }
+
+        function simulateMove(b, m) {
+            let newBoard = b.map(row => [...row]);
+            let piece = newBoard[m.fromRow][m.fromCol];
+            newBoard[m.toRow][m.toCol] = piece;
+            newBoard[m.fromRow][m.fromCol] = 0;
+
+            let madeJump = false;
+            if (m.captured) {
+                newBoard[m.captured.r][m.captured.c] = 0;
+                madeJump = true;
+            }
+
+            let promoted = false;
+            if (piece === 1 && m.toRow === 0) {
+                newBoard[m.toRow][m.toCol] = 3;
+                promoted = true;
+            } else if (piece === 2 && m.toRow === 7) {
+                newBoard[m.toRow][m.toCol] = 4;
+                promoted = true;
+            }
+
+            let consecutiveMoves = [];
+            if (madeJump && !promoted) {
+                consecutiveMoves = getValidMovesForBoard(newBoard, m.toRow, m.toCol, true).filter(x => x.captured !== null);
+                if (consecutiveMoves.length > 0) {
+                    consecutiveMoves = consecutiveMoves.map(cMove => ({ fromRow: m.toRow, fromCol: m.toCol, ...cMove }));
+                }
+            }
+
+            return { newBoard, consecutiveMoves };
+        }
+
+        // ======================= AI LOGIC =======================
+        function evaluateBoard(b) {
+            let p1Score = 0;
+            let p2Score = 0;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    let piece = b[r][c];
+                    if (piece === 1) p1Score += 10 + (7 - r);
+                    if (piece === 2) p2Score += 10 + r;
+                    if (piece === 3) p1Score += 40;
+                    if (piece === 4) p2Score += 40;
+                }
+            }
+            return p2Score - p1Score;
+        }
+
+        function getFullTurns(b, player) {
+            // For the bot, we enforce mandatory jumps so it doesn't get blown.
+            let initialMoves = getAllPossibleMovesForBoard(b, player, true);
+            let fullTurns = [];
+
+            function exploreJumps(currentBoard, moveSequence, lastMove) {
+                let { newBoard, consecutiveMoves } = simulateMove(currentBoard, lastMove);
+
+                if (consecutiveMoves.length > 0) {
+                    for (let cMove of consecutiveMoves) {
+                        exploreJumps(newBoard, [...moveSequence, cMove], cMove);
+                    }
+                } else {
+                    fullTurns.push({ finalBoard: newBoard, sequence: [...moveSequence] });
+                }
+            }
+
+            for (let move of initialMoves) {
+                exploreJumps(b, [move], move);
+            }
+            return fullTurns;
+        }
+
+        function minimax(b, depth, alpha, beta, isMaximizing) {
+            if (depth === 0) return evaluateBoard(b);
+
+            let turns = getFullTurns(b, isMaximizing ? 2 : 1);
+            if (turns.length === 0) {
+                return isMaximizing ? -10000 : 10000;
+            }
+
+            if (isMaximizing) {
+                let maxEval = -Infinity;
+                for (let turn of turns) {
+                    let ev = minimax(turn.finalBoard, depth - 1, alpha, beta, false);
+                    maxEval = Math.max(maxEval, ev);
+                    alpha = Math.max(alpha, ev);
+                    if (beta <= alpha) break;
+                }
+                return maxEval;
+            } else {
+                let minEval = Infinity;
+                for (let turn of turns) {
+                    let ev = minimax(turn.finalBoard, depth - 1, alpha, beta, true);
+                    minEval = Math.min(minEval, ev);
+                    beta = Math.min(beta, ev);
+                    if (beta <= alpha) break;
+                }
+                return minEval;
+            }
+        }
+
+        function makeBotMove() {
+            if (gameEnded) return;
+            botThinking = true;
+            statusElement.innerHTML = `Bot is thinking... <span class="animate-pulse">⏳</span>`;
+
+            setTimeout(() => {
+                let bestScore = -Infinity;
+                let bestTurn = null;
+
+                let turns = getFullTurns(board, 2);
+                if (turns.length > 0) {
+                    for (let turn of turns) {
+                        let score = minimax(turn.finalBoard, SEARCH_DEPTH, -Infinity, Infinity, false);
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestTurn = turn;
+                        }
+                    }
+
+                    if (bestTurn) {
+                        executeBotSequence(bestTurn.sequence, 0);
+                    } else {
+                        botThinking = false;
+                        checkGameOver();
+                    }
+                } else {
+                    botThinking = false;
+                    checkGameOver();
+                }
+            }, 50);
+        }
+
+        function executeBotSequence(sequence, index) {
+            if (index >= sequence.length) {
+                botThinking = false;
+                consecutiveJumpPiece = null;
+                selectedPiece = null;
+                possibleMoves = [];
+                currentPlayer = 1;
+                checkGameOver();
+                updateStatus();
+                renderBoard();
+                return;
+            }
+
+            let m = sequence[index];
+            executeMoveInternal(m.fromRow, m.fromCol, m.toRow, m.toCol, m.captured);
+            renderBoard();
+
+            setTimeout(() => {
+                executeBotSequence(sequence, index + 1);
+            }, 500);
+        }
+        // ========================================================
+
+        function handleSquareClick(r, c) {
+            if (gameEnded || botThinking || (playAgainstBot && currentPlayer === 2)) return;
+
+            const piece = board[r][c];
+            const player = (piece === 1 || piece === 3) ? 1 : 2;
+
+            if (selectedPiece) {
+                const move = possibleMoves.find(m => m.toRow === r && m.toCol === c);
+                if (move) {
+                    executePlayerMove(selectedPiece.row, selectedPiece.col, r, c, move.captured);
+                    return;
+                } else if (piece !== 0 && player === currentPlayer && !consecutiveJumpPiece) {
+                    selectPiece(r, c);
+                } else if (!consecutiveJumpPiece) {
+                    selectedPiece = null;
+                    possibleMoves = [];
+                    renderBoard();
+                }
+            } else {
+                if (piece !== 0 && player === currentPlayer && !consecutiveJumpPiece) {
+                    selectPiece(r, c);
+                }
+            }
+        }
+
+        function selectPiece(r, c) {
+            // Player is not forced to jump, so enforceMandatory is false
+            const allMoves = getAllPossibleMovesForBoard(board, currentPlayer, false);
+            const pieceMoves = allMoves.filter(m => m.fromRow === r && m.fromCol === c);
+
+            if (pieceMoves.length > 0) {
+                selectedPiece = { row: r, col: c };
+                possibleMoves = pieceMoves;
+                renderBoard();
+            }
+        }
+
+        function executeMoveInternal(fromR, fromC, toR, toC, captured) {
+            const piece = board[fromR][fromC];
+            board[toR][toC] = piece;
+            board[fromR][fromC] = 0;
+
+            if (captured) {
+                const capturedPiece = board[captured.r][captured.c];
+                if (capturedPiece === 1 || capturedPiece === 3) score1--;
+                else score2--;
+                board[captured.r][captured.c] = 0;
+            }
+
+            let promoted = false;
+            if (piece === 1 && toR === 0) {
+                board[toR][toC] = 3;
+                promoted = true;
+            } else if (piece === 2 && toR === 7) {
+                board[toR][toC] = 4;
+                promoted = true;
+            }
+            return { madeJump: !!captured, promoted };
+        }
+
+        function executePlayerMove(fromR, fromC, toR, toC, captured) {
+            // Check for SOPRO before applying the move
+            if (!captured) {
+                const allPossible = getAllPossibleMovesForBoard(board, currentPlayer, false);
+                const jumpsAvailable = allPossible.filter(m => m.captured !== null);
+
+                if (jumpsAvailable.length > 0) {
+                    const blown = jumpsAvailable[0];
+
+                    if (blown.fromRow === fromR && blown.fromCol === fromC) {
+                        // The player moved the piece that should have jumped, but didn't jump.
+                        // We blow it immediately. Move is aborted.
+                        board[fromR][fromC] = 0;
+                        if (currentPlayer === 1) score1--; else score2--;
+                        showToast("Huff! You moved without capturing. Piece lost!");
+
+                        consecutiveJumpPiece = null;
+                        selectedPiece = null;
+                        possibleMoves = [];
+                        currentPlayer = currentPlayer === 1 ? 2 : 1;
+                        checkGameOver();
+                        updateStatus();
+                        renderBoard();
+                        if (!gameEnded && playAgainstBot && currentPlayer === 2) {
+                            setTimeout(makeBotMove, 200);
+                        }
+                        return;
+                    } else {
+                        // A different piece should have jumped. We blow that one.
+                        board[blown.fromRow][blown.fromCol] = 0;
+                        if (currentPlayer === 1) score1--; else score2--;
+                        showToast("Huff! A piece that could capture was lost!");
+                    }
+                }
+            }
+
+            let { madeJump, promoted } = executeMoveInternal(fromR, fromC, toR, toC, captured);
+
+            if (madeJump && !promoted) {
+                const furtherJumps = getValidMovesForBoard(board, toR, toC, true).filter(m => m.captured !== null);
+                if (furtherJumps.length > 0) {
+                    consecutiveJumpPiece = { row: toR, col: toC };
+                    selectedPiece = consecutiveJumpPiece;
+                    possibleMoves = furtherJumps;
+                    renderBoard();
+                    return;
+                }
+            }
+
+            consecutiveJumpPiece = null;
+            selectedPiece = null;
+            possibleMoves = [];
+            currentPlayer = currentPlayer === 1 ? 2 : 1;
+
+            checkGameOver();
+            updateStatus();
+            renderBoard();
+
+            if (!gameEnded && playAgainstBot && currentPlayer === 2) {
+                setTimeout(makeBotMove, 200);
+            }
+        }
+
+        function checkGameOver() {
+            if (score1 === 0) {
+                gameEnded = true;
+                statusElement.innerHTML = `Player 2 Wins!`;
+                return;
+            }
+            if (score2 === 0) {
+                gameEnded = true;
+                statusElement.innerHTML = `Player 1 Wins!`;
+                return;
+            }
+
+            const nextMoves = getAllPossibleMovesForBoard(board, currentPlayer, false);
+            if (nextMoves.length === 0) {
+                gameEnded = true;
+                statusElement.innerHTML = `Player ${currentPlayer === 1 ? 2 : 1} Wins! (No valid moves)`;
+            }
+        }
+
+        function updateStatus() {
+            score1El.innerText = score1;
+            score2El.innerText = score2;
+            score1El.style.color = p1ColorPicker.value;
+            score2El.style.color = p2ColorPicker.value;
+
+            if (!gameEnded) {
+                if (botThinking) {
+                    statusElement.innerHTML = `Bot is thinking... <span class="animate-pulse">⏳</span>`;
+                } else {
+                    statusElement.innerHTML = `Player ${currentPlayer}'s Turn`;
+                }
+                statusElement.className = `text-2xl font-bold mb-4 px-6 py-3 rounded-lg min-w-[200px] shadow-lg transition-colors border ${currentPlayer === 1 ? 'text-white' : 'text-slate-900'}`;
+                statusElement.style.backgroundColor = currentPlayer === 1 ? p1ColorPicker.value : p2ColorPicker.value;
+                statusElement.style.borderColor = currentPlayer === 1 ? p1ColorPicker.value : p2ColorPicker.value;
+            } else {
+                statusElement.className = `text-2xl font-bold text-amber-400 mb-4 px-6 py-3 rounded-lg bg-amber-950/30 border border-amber-800 shadow-lg min-w-[200px]`;
+                statusElement.style.backgroundColor = '';
+                statusElement.style.borderColor = '';
+            }
+        }
+
+        function renderBoard() {
+            boardElement.innerHTML = '';
+            const c1 = p1ColorPicker.value;
+            const c2 = p2ColorPicker.value;
+
+            score1El.style.color = c1;
+            score2El.style.color = c2;
+            if (!gameEnded && !botThinking) {
+                statusElement.style.backgroundColor = currentPlayer === 1 ? c1 : c2;
+                statusElement.style.borderColor = currentPlayer === 1 ? c1 : c2;
+            }
+
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const isDark = (r + c) % 2 === 1;
+                    const cell = document.createElement('div');
+                    cell.className = `w-full h-full flex items-center justify-center relative ${isDark ? 'bg-slate-800' : 'bg-slate-200'}`;
+
+                    if (isDark) {
+                        cell.onclick = () => handleSquareClick(r, c);
+                    }
+
+                    const isPossibleMove = possibleMoves.some(m => m.toRow === r && m.toCol === c);
+                    if (isPossibleMove) {
+                        const marker = document.createElement('div');
+                        marker.className = 'w-1/3 h-1/3 bg-emerald-400 rounded-full opacity-60 shadow-[0_0_10px_rgba(52,211,153,0.8)] z-0';
+                        cell.appendChild(marker);
+                        cell.classList.add('cursor-pointer', 'hover:bg-slate-700');
+                    }
+
+                    const piece = board[r][c];
+                    if (piece !== 0) {
+                        const pieceEl = document.createElement('div');
+                        const isP1 = piece === 1 || piece === 3;
+                        const isKing = piece === 3 || piece === 4;
+
+                        pieceEl.className = `piece w-[80%] h-[80%] rounded-full absolute z-10 ${isKing ? 'king' : ''}`;
+                        pieceEl.style.backgroundColor = isP1 ? c1 : c2;
+
+                        const isSelected = selectedPiece && selectedPiece.row === r && selectedPiece.col === c;
+                        if (isSelected) {
+                            pieceEl.classList.add('ring-4', 'ring-white', 'scale-110');
+                        }
+
+                        if (!consecutiveJumpPiece && !botThinking && (!playAgainstBot || currentPlayer === 1) && ((isP1 && currentPlayer === 1) || (!isP1 && currentPlayer === 2))) {
+                            pieceEl.classList.add('cursor-pointer', 'hover:scale-105');
+                        }
+
+                        cell.appendChild(pieceEl);
+                    }
+
+                    boardElement.appendChild(cell);
+                }
+            }
+        }
+
+        p1ColorPicker.addEventListener('input', () => {
+            renderBoard();
+            updateStatus();
+        });
+        p2ColorPicker.addEventListener('input', () => {
+            renderBoard();
+            updateStatus();
+        });
+        resetBtn.addEventListener('click', () => {
+            // Reset to menu instead of just resetting board
+            gameWrapper.classList.add('hidden');
+            gameWrapper.classList.remove('flex');
+            startMenu.style.display = 'flex';
+        });
+
+    </script>
+</body>
+
+</html>
